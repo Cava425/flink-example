@@ -9,7 +9,13 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class WordCountStreamJob {
+
+    //private static final Pattern pattern = Pattern.compile("\\b\\w+\\b");
+    private static final Pattern pattern = Pattern.compile("[\\w']+");
 
     public static void main(String[] args) throws Exception {
 
@@ -28,8 +34,11 @@ public class WordCountStreamJob {
         DataStream<Tuple2<String, Integer>> wordCount = streamSource.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
             @Override
             public void flatMap(String line, Collector<Tuple2<String, Integer>> collector) throws Exception {
-                String[] tokens = line.split("\\s");
-                for (String token : tokens) {
+
+                Matcher matcher = pattern.matcher(line);
+
+                while (matcher.find()){
+                    String token = matcher.group();
                     if (token.length() > 0) {
                         collector.collect(new Tuple2<>(token, 1));
                     }
